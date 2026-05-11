@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
+import { useAuthStore } from '@/stores/auth'
 
 const routes = [
   {
@@ -38,18 +38,19 @@ const routes = [
   },
 ]
 
-@@ -24,4 +41,14 @@ const router = createRouter({
+const router = createRouter({
   routes,
 })
 
 router.beforeEach((to) => {
-  if (to.meta.requiresAuth) {
+  const authStore = useAuthStore()
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
 
-  // if (to.meta.guestOnly && isAuth) {
-  //   return { name: 'projects' }
-  // }
+  if (to.meta.guestOnly && auth.isAuthenticated) {
+    return { name: 'projects' }
+  }
 })
 
 export default router

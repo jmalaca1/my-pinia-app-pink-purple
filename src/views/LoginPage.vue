@@ -1,16 +1,29 @@
 <script setup>
 import { reactive } from 'vue'
-// import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useTitle } from '@vueuse/core'
 import AppButton from '@/components/AppButton.vue'
 import FormField from '@/components/FormField.vue'
+import { useAuthStore } from '@/stores/auth'
+import { useAsync } from '@/composables/useAsync'
 
 useTitle('Sign in · Projects')
 
-// const router = useRouter()
-// const route = useRoute()
+const router = useRouter()
+const route = useRoute()
+const auth = useAuthStore()
+const { loading, error, fieldErrors, run } = useAsync()
 
 const form = reactive({ email: '', password: '' })
+async function onSubmit() {
+  try {
+    await run(() => auth.login(form))
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/projects'
+    router.replace(redirect)
+  } catch {
+    // error captured
+  }
+}
 </script>
 <template>
   <h1>Login Page</h1>
@@ -55,7 +68,7 @@ const form = reactive({ email: '', password: '' })
           type="submit"
           :loading="loading"
         >
-          {{ 'Sign in' }}
+          {{ loading ? 'Signing in…' : }}
         </AppButton>
       </form>
       <p class="mt-5 text-center text-sm text-text-2">

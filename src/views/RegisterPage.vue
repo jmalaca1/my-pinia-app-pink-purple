@@ -1,12 +1,27 @@
 <script setup>
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { useTitle } from '@vueuse/core'
 import AppButton from '@/components/AppButton.vue'
 import FormField from '@/components/FormField.vue'
+import { useAuthStore } from '@/stores/auth'
+import { useAsync } from '@/composables/useAsync'
 
 useTitle('Create account · Projects')
 
+const router = useRouter()
+const auth = useAuthStore()
+const { loading, error, fieldErrors, run } = useAsync()
+
 const form = reactive({ email: '', password: '' })
+async function onSubmit() {
+  try {
+    await run(() => auth.register(form))
+    router.replace('/projects')
+  } catch {
+    // shown via error state
+  }
+}
 </script>
 
 <template>
@@ -30,6 +45,7 @@ const form = reactive({ email: '', password: '' })
           autocomplete="email"
           required
           placeholder="you@company.com"
+          :error="fieldErrors.email"
         />
         <FormField
           v-model="form.password"
@@ -39,6 +55,7 @@ const form = reactive({ email: '', password: '' })
           placeholder="At least 8 characters…"
           hint="Min 8"
           required
+          :error="fieldErrors.password"
         />
 
         <p
@@ -55,7 +72,7 @@ const form = reactive({ email: '', password: '' })
           type="submit"
           :loading="loading"
         >
-          {{ 'Create account' }}
+          {{ loading ? 'Creating account…' :}}
         </AppButton>
       </form>
 
