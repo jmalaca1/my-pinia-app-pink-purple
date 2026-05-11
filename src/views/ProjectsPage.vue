@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useTitle } from '@vueuse/core'
 import AppButton from '@/components/AppButton.vue'
 import FormField from '@/components/FormField.vue'
-// import ProjectCard from '@/components/ProjectCard.vue'
+import ProjectCard from '@/components/ProjectCard.vue'
 import { useProjectsStore } from '@/stores/projects'
 import { useAsync } from '@/composables/useAsync'
 
@@ -195,7 +195,13 @@ onMounted(() => {
       v-else
       class="rise rise-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
     >
-      <h1>Show me the projects, TODO</h1>
+      <ProjectCard
+        v-for="project in list"
+        :key="project.id"
+        :project="project"
+        @edit="openEdit"
+        @delete="onDelete"
+      />
     </div>
   </main>
 </template>
