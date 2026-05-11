@@ -68,7 +68,7 @@ async function onSubmit() {
           type="submit"
           :loading="loading"
         >
-          {{ loading ? 'Signing in…' : }}
+          {{ loading ? 'Signing in…': 'Sign in' }}
         </AppButton>
       </form>
       <p class="mt-5 text-center text-sm text-text-2">
