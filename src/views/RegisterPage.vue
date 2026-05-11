@@ -72,7 +72,7 @@ async function onSubmit() {
           type="submit"
           :loading="loading"
         >
-          {{ loading ? 'Creating account…' :}}
+{{ loading ? 'Creating account…' : 'Create Account' }}
         </AppButton>
       </form>
 
