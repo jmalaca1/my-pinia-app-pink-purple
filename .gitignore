@@ -31,7 +31,9 @@ coverage
 # Cypress
 /cypress/videos/
 /cypress/screenshots/
+.dccache
 
+.env
 # Vitest
 __screenshots__/
 
