@@ -1,67 +1,68 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { apiFetch } from '@/lib/api'
 
-export const useTaskStore = defineStore('taskStore', {
-  state: () => ({
-    tasks: [
-      { id: 1, title: 'Watch Vue 3 tutorial', completed: false, priority: 'high' },
-      { id: 2, title: 'Build Pinia store', completed: false, priority: 'medium' },
-      { id: 3, title: 'Deploy to Cloudflare', completed: true, priority: 'low' }
-    ],
-    filter: 'all' // 'all', 'completed', 'pending'
-  }),
+export const useTasksStore = defineStore('tasks', () => {
+  const list = ref([])
+  const loading = ref(false)
+  const error = ref(null)
+  const currentProjectId = ref(null)
 
-  getters: {
-    filteredTasks: (state) => {
-      if (state.filter === 'completed') {
-        return state.tasks.filter(task => task.completed)
-      }
-      if (state.filter === 'pending') {
-        return state.tasks.filter(task => !task.completed)
-      }
-      return state.tasks
-    },
-
-    totalTasks: (state) => state.tasks.length,
-    completedTasks: (state) => state.tasks.filter(t => t.completed).length,
-    pendingTasks: (state) => state.tasks.filter(t => !t.completed).length,
-    
-    completionPercentage: (state) => {
-      if (state.tasks.length === 0) return 0
-      return Math.round((state.completedTasks / state.tasks.length) * 100)
+  async function fetchByProject(projectId) {
+    loading.value = true
+    error.value = null
+    currentProjectId.value = projectId
+    try {
+      list.value = (await apiFetch(`/projects/${projectId}/tasks`, { auth: true })) ?? []
+    } catch (err) {
+      error.value = err
+      throw err
+    } finally {
+      loading.value = false
     }
-  },
+  }
 
+  async function create(projectId, payload) {
+    const task = await apiFetch(`/projects/${projectId}/tasks`, {
+      method: 'POST',
+      body: payload,
+      auth: true,
+    })
+    list.value.push(task)
+    return task
+  }
 
-  actions: {
-    addTask(taskTitle, priority = 'medium') {
-      if (!taskTitle.trim()) return
-      
-      const newTask = {
-        id: Date.now(), // Simple unique ID
-        title: taskTitle,
-        completed: false,
-        priority: priority
-      }
-      this.tasks.push(newTask)
-    },
+  async function update(id, payload) {
+    const updated = await apiFetch(`/tasks/${id}`, {
+      method: 'PATCH',
+      body: payload,
+      auth: true,
+    })
+    const index = list.value.findIndex((t) => t.id === id)
+    if (index !== -1) list.value[index] = updated
+    return updated
+  }
 
-    toggleTask(taskId) {
-      const task = this.tasks.find(t => t.id === taskId)
-      if (task) {
-        task.completed = !task.completed
-      }
-    },
+  async function remove(id) {
+    await apiFetch(`/tasks/${id}`, { method: 'DELETE', auth: true })
+    list.value = list.value.filter((t) => t.id !== id)
+  }
 
-    deleteTask(taskId) {
-      this.tasks = this.tasks.filter(t => t.id !== taskId)
-    },
+  function reset() {
+    list.value = []
+    currentProjectId.value = null
+    error.value = null
+  }
 
-    setFilter(filterType) {
-      this.filter = filterType
-    },
-
-    clearCompleted() {
-      this.tasks = this.tasks.filter(t => !t.completed)
-    }
+  return {
+    list,
+    loading,
+    error,
+    currentProjectId,
+    fetchByProject,
+    create,
+    update,
+    remove,
+    reset,
   }
 })
