@@ -1,26 +1,24 @@
 <script setup>
 import { reactive } from 'vue'
-// import { useRoute, useRouter } from 'vue-router'
 import { useTitle } from '@vueuse/core'
 import AppButton from '@/components/AppButton.vue'
 import FormField from '@/components/FormField.vue'
 
-useTitle('Sign in · Projects')
-
-// const router = useRouter()
-// const route = useRoute()
+useTitle('Create account · Projects')
 
 const form = reactive({ email: '', password: '' })
 </script>
+
 <template>
-  <h1>Login Page</h1>
+  <h1>Register Page</h1>
   <main class="flex flex-1 items-center justify-center px-5 py-16">
     <div class="rise w-full max-w-sm">
       <div class="mb-8 text-center">
-        <span class="chip chip-accent mb-4">Welcome back</span>
-        <h1 class="mt-3 text-2xl font-semibold tracking-tight text-text">Sign in to Projects</h1>
-        <p class="mt-1.5 text-sm text-text-2">Your workspace is waiting.</p>
+        <span class="chip chip-accent">New account</span>
+        <h1 class="mt-3 text-2xl font-semibold tracking-tight text-text">Start organising today</h1>
+        <p class="mt-1.5 text-sm text-text-2">Create your free Projects account.</p>
       </div>
+
       <form
         class="card flex flex-col gap-4 p-6"
         @submit.prevent="onSubmit"
@@ -37,7 +35,9 @@ const form = reactive({ email: '', password: '' })
           v-model="form.password"
           label="Password"
           type="password"
-          autocomplete="current-password"
+          autocomplete="new-password"
+          placeholder="At least 8 characters…"
+          hint="Min 8"
           required
         />
 
@@ -55,17 +55,17 @@ const form = reactive({ email: '', password: '' })
           type="submit"
           :loading="loading"
         >
-          {{ 'Sign in' }}
+          {{ 'Create account' }}
         </AppButton>
       </form>
+
       <p class="mt-5 text-center text-sm text-text-2">
-        New here?
+        Already have an account?
         <RouterLink
-          to="/register"
+          to="/login"
           class="font-medium text-accent underline-offset-4 hover:underline"
+          >Sign in</RouterLink
         >
-          Create an account
-        </RouterLink>
       </p>
     </div>
   </main>
